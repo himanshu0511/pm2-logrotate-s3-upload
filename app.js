@@ -110,7 +110,8 @@ function proceed(file) {
     readStream.pipe(writeStream);
 
   if(
-    conf.logBucketSetting
+    conf.serverIp
+    && conf.logBucketSetting
     && conf.logBucketSetting.bucket
     && conf.logBucketSetting.s3Path
     && conf.aws
@@ -125,14 +126,8 @@ function proceed(file) {
     var currentTime = new Date();
     var upload = s3Stream.upload({
       "Bucket": conf.logBucketSetting.bucket,
-      "Key": (conf.logBucketSetting.s3Path + '/' + currentTime.getFullYear() + '/' + (currentTime.getMonth() + 1) + '/' + currentTime.getDate() + '/' + compressedFileName)
+      "Key": (conf.logBucketSetting.s3Path + '/' + currentTime.getFullYear() + '/' + (currentTime.getMonth() + 1) + '/' + currentTime.getDate() + '/' + conf.serverIp + '/' + compressedFileName)
     });
-    // upload.on('error', function(error){
-    //   console.log(error);
-    // });
-    // readStream.on('error', function(error){
-    //   console.log(error);
-    // });
     readStream.pipe(GZIP).pipe(upload);
   }
 
@@ -266,7 +261,6 @@ function updateFolderSizeProbe() {
     files.forEach(function (file, idx, arr) {
        returned += fs.statSync(folder + "/" + file).size;
     });
-
     metrics.totalsize.set(handleUnit(returned, 2));
   });
 }
