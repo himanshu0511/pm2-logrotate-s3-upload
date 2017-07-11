@@ -91,7 +91,7 @@ function delete_old(file) {
 function proceed(file) {
   var final_name = file.substr(0, file.length - 4) + '__'
     + moment().format(DATE_FORMAT) + '.log';
-  var compressedFileName = file.substr(0, file.length - 4) + '.gz';
+  var compressedFileName = path.basename(file).substr(0, file.length - 4) + '.gz';
   // if compression is enabled, add gz extention and create a gzip instance
   var GZIP = zlib.createGzip({ level: zlib.Z_BEST_COMPRESSION, memLevel: zlib.Z_BEST_COMPRESSION });
   if (COMPRESSION) {
