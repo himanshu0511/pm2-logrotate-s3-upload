@@ -129,9 +129,6 @@ function proceed(file) {
     upload.on('error', function(error){
       console.log(error);
     });
-    GZIP.on('error', function(error){
-      console.log(error);
-    });
     readStream.on('error', function(error){
       console.log(error);
     });
