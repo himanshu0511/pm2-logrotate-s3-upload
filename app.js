@@ -104,9 +104,9 @@ function proceed(file) {
 
   // pipe all stream
   if (COMPRESSION)
-    readStream.pipe(GZIP).pipe(writeStream);
+    // readStream.pipe(GZIP).pipe(writeStream);
   else
-    readStream.pipe(writeStream);
+    // readStream.pipe(writeStream);
 
   if(
     conf.logBucketSetting
