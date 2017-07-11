@@ -103,9 +103,9 @@ function proceed(file) {
 	var writeStream = fs.createWriteStream(final_name, {'flags': 'w+'});
 
   // pipe all stream
-  if (COMPRESSION)
+  // if (COMPRESSION){}
     // readStream.pipe(GZIP).pipe(writeStream);
-  else
+  // else{}
     // readStream.pipe(writeStream);
 
   if(
