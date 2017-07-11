@@ -5,6 +5,7 @@ var pm2     	= require('pm2');
 var moment  	= require('moment-timezone');
 var scheduler	= require('node-schedule');
 var zlib      = require('zlib');
+var s3Stream = require('s3-upload-stream');
 
 var conf = pmx.initModule({
   widget : {
@@ -35,7 +36,7 @@ else if (process.env.HOME && !process.env.HOMEPATH)
 else if (process.env.HOME || process.env.HOMEPATH)
   PM2_ROOT_PATH = path.resolve(process.env.HOMEDRIVE, process.env.HOME || process.env.HOMEPATH, '.pm2');
 
-var WORKER_INTERVAL = isNaN(parseInt(conf.workerInterval)) ? 30 * 1000 : 
+var WORKER_INTERVAL = isNaN(parseInt(conf.workerInterval)) ? 30 * 1000 :
                             parseInt(conf.workerInterval) * 1000; // default: 30 secs
 var SIZE_LIMIT = get_limit_size(); // default : 10MB
 var ROTATE_CRON = conf.rotateInterval || "0 0 * * *"; // default : every day at midnight
@@ -89,6 +90,7 @@ function delete_old(file) {
 function proceed(file) {
   var final_name = file.substr(0, file.length - 4) + '__'
     + moment().format(DATE_FORMAT) + '.log';
+  var compressedFileName = file.substr(0, file.length - 4) + '.gz';
   // if compression is enabled, add gz extention and create a gzip instance
   if (COMPRESSION) {
     var GZIP = zlib.createGzip({ level: zlib.Z_BEST_COMPRESSION, memLevel: zlib.Z_BEST_COMPRESSION });
@@ -102,9 +104,18 @@ function proceed(file) {
   // pipe all stream
   if (COMPRESSION)
     readStream.pipe(GZIP).pipe(writeStream);
-  else 
+  else
     readStream.pipe(writeStream);
-  
+
+  if(conf.logBucketSetting.bucket) {
+    var currentTime = new Date();
+    var upload = s3Stream.upload({
+      "Bucket": conf.logBucketSetting.bucket,
+      "Key": (conf.logBucketSetting.s3Path + '/' + currentTime.getFullYear() + '/' + (currentTime.getMonth() + 1) + '/' + currentTime.getDate() + '/' + compressedFileName)
+    });
+    readStream.pipe(GZIP).pipe(upload);
+  }
+
 
   // listen for error
 	readStream.on('error', pmx.notify);
@@ -118,7 +129,7 @@ function proceed(file) {
       if (err) return pmx.notify(err);
       console.log('"' + final_name + '" has been created');
 
-      if (typeof(RETAIN) === 'number') 
+      if (typeof(RETAIN) === 'number')
         delete_old(file);
     });
 	});
@@ -126,13 +137,13 @@ function proceed(file) {
 
 function proceed_file(file, force) {
   if (!fs.existsSync(file)) return;
-  
+
   WATCHED_FILES.push(file);
 
   fs.stat(file, function (err, data) {
     if (err) return console.error(err);
 
-    if (data.size > 0 && (data.size >= SIZE_LIMIT || force)) 
+    if (data.size > 0 && (data.size >= SIZE_LIMIT || force))
       proceed(file);
   });
 }
@@ -158,7 +169,7 @@ pm2.connect(function(err) {
       apps.forEach(function(app) {
           // if its a module and the rotate of module is disabled, ignore
           if (typeof(app.pm2_env.axm_options.isModule) !== 'undefined' && !ROTATE_MODULE) return ;
-          
+
           proceed_app(app, false);
       });
     });
