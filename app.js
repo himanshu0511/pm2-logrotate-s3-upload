@@ -93,8 +93,9 @@ function proceed(file) {
     + moment().format(DATE_FORMAT) + '.log';
   var compressedFileName = file.substr(0, file.length - 4) + '.gz';
   // if compression is enabled, add gz extention and create a gzip instance
+  var GZIP = zlib.createGzip({ level: zlib.Z_BEST_COMPRESSION, memLevel: zlib.Z_BEST_COMPRESSION });
   if (COMPRESSION) {
-    var GZIP = zlib.createGzip({ level: zlib.Z_BEST_COMPRESSION, memLevel: zlib.Z_BEST_COMPRESSION });
+
     final_name += ".gz";
   }
 
@@ -103,10 +104,10 @@ function proceed(file) {
 	var writeStream = fs.createWriteStream(final_name, {'flags': 'w+'});
 
   // pipe all stream
-  // if (COMPRESSION){}
-    // readStream.pipe(GZIP).pipe(writeStream);
-  // else{}
-    // readStream.pipe(writeStream);
+  if (COMPRESSION)
+    readStream.pipe(GZIP).pipe(writeStream);
+  else
+    readStream.pipe(writeStream);
 
   if(
     conf.logBucketSetting
@@ -126,12 +127,12 @@ function proceed(file) {
       "Bucket": conf.logBucketSetting.bucket,
       "Key": (conf.logBucketSetting.s3Path + '/' + currentTime.getFullYear() + '/' + (currentTime.getMonth() + 1) + '/' + currentTime.getDate() + '/' + compressedFileName)
     });
-    upload.on('error', function(error){
-      console.log(error);
-    });
-    readStream.on('error', function(error){
-      console.log(error);
-    });
+    // upload.on('error', function(error){
+    //   console.log(error);
+    // });
+    // readStream.on('error', function(error){
+    //   console.log(error);
+    // });
     readStream.pipe(GZIP).pipe(upload);
   }
 
