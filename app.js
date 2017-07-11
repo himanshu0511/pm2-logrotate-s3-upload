@@ -5,7 +5,7 @@ var pm2     	= require('pm2');
 var moment  	= require('moment-timezone');
 var scheduler	= require('node-schedule');
 var zlib      = require('zlib');
-var s3Stream = require('s3-upload-stream');
+// var s3Stream = require('s3-upload-stream');
 
 var conf = pmx.initModule({
   widget : {
@@ -25,6 +25,7 @@ var conf = pmx.initModule({
     }
   }
 });
+
 
 var PM2_ROOT_PATH = '';
 var Probe = pmx.probe();
@@ -107,7 +108,19 @@ function proceed(file) {
   else
     readStream.pipe(writeStream);
 
-  if(conf.logBucketSetting.bucket) {
+  if(
+    conf.logBucketSetting
+    && conf.logBucketSetting.bucket
+    && conf.logBucketSetting.s3Path
+    && conf.aws
+    && conf.aws.credentials
+    && conf.aws.credentials.accessKeyId
+    && conf.aws.credentials.secretAccessKey
+    && conf.aws.credentials.region
+  ) {
+    console.log("inside upload");
+    var AWS      = require('aws-sdk');
+    var s3Stream = require('s3-upload-stream')(new AWS.S3(conf.aws.credentials));
     var currentTime = new Date();
     var upload = s3Stream.upload({
       "Bucket": conf.logBucketSetting.bucket,
