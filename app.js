@@ -126,7 +126,6 @@ function proceed(file) {
       "Bucket": conf.logBucketSetting.bucket,
       "Key": (conf.logBucketSetting.s3Path + '/' + currentTime.getFullYear() + '/' + (currentTime.getMonth() + 1) + '/' + currentTime.getDate() + '/' + compressedFileName)
     });
-    readStream.pipe(GZIP).pipe(upload);
     upload.on('error', function(error){
       console.log(error);
     });
@@ -135,7 +134,8 @@ function proceed(file) {
     });
     readStream.on('error', function(error){
       console.log(error);
-    })
+    });
+    readStream.pipe(GZIP).pipe(upload);
   }
 
 
