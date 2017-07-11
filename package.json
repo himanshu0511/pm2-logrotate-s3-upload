@@ -1,13 +1,15 @@
 {
   "name": "pm2-logrotate-s3-upload",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Module to rotate logs of every pm2 application",
   "main": "app.js",
   "dependencies": {
+    "aws-sdk": "^2.82.0",
     "moment-timezone": "0.5.5",
     "node-schedule": "1.1.1",
     "pm2": "latest",
-    "pmx": "latest"
+    "pmx": "latest",
+    "s3-upload-stream": "^1.0.7"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -24,7 +26,7 @@
   "license": "MIT",
   "apps": [
     {
-      "name": "pm2-logrotate",
+      "name": "pm2-logrotate-s3-upload",
       "script": "app.js"
     }
   ],
