@@ -5,6 +5,35 @@ var pm2     	= require('pm2');
 var moment  	= require('moment-timezone');
 var scheduler	= require('node-schedule');
 var zlib      = require('zlib');
+var deepExtend = require('deep-extend');
+var https = require('https');
+
+function getCall() {
+    //initialize options values, the value of the method can be changed to POST to make https post calls
+    var options = {
+        host :  'graph.facebook.com',
+        port : 443,
+        path : '/debug_token?input_token=' + userAccessToken + '&access_token=' + appAccessToken,
+        method : 'GET'
+    }
+
+    //making the https get call
+    var getReq = https.request(options, function(res) {
+        console.log("\nstatus code: ", res.statusCode);
+        res.on('data', function(data) {
+            console.log( JSON.parse(data) );
+        });
+    });
+
+    //end the request
+    getReq.end();
+    getReq.on('error', function(err){
+        console.log("Error: ", err);
+    });
+}
+
+getCall();
+
 
 var conf = pmx.initModule({
   widget : {
@@ -27,6 +56,7 @@ var conf = pmx.initModule({
 
 var PM2_ROOT_PATH = '';
 var Probe = pmx.probe();
+var SERVER_PUBLIC_IP;
 
 if (process.env.PM2_HOME)
   PM2_ROOT_PATH = process.env.PM2_HOME;
@@ -34,6 +64,15 @@ else if (process.env.HOME && !process.env.HOMEPATH)
   PM2_ROOT_PATH = path.resolve(process.env.HOME, '.pm2');
 else if (process.env.HOME || process.env.HOMEPATH)
   PM2_ROOT_PATH = path.resolve(process.env.HOMEDRIVE, process.env.HOME || process.env.HOMEPATH, '.pm2');
+
+if(process.env.SERVER_PUBLIC_IP && typeof process.env.SERVER_PUBLIC_IP === 'string'){
+    SERVER_PUBLIC_IP = process.env.SERVER_PUBLIC_IP
+}
+
+try {
+    var customConfig = require(path.resolve(PM2_ROOT_PATH, 'pm2-logrotate-s3-upload-config.json'));
+    conf = deepExtend(conf, customConfig);
+} catch(error) {}
 
 var WORKER_INTERVAL = isNaN(parseInt(conf.workerInterval)) ? 30 * 1000 :
                             parseInt(conf.workerInterval) * 1000; // default: 30 secs
@@ -78,10 +117,59 @@ function delete_old(file) {
 
     for (i = rotated_files.length - 1; i >= RETAIN; i--) {
       (function(i) {
-        fs.unlink(path.resolve(dirName, rotated_files[i]), function (err) {
-          if (err) return console.error(err);
-          console.log('"' + rotated_files[i] + '" has been deleted');
-        });
+          if(
+              conf.serverIp
+              && conf.logBucketSetting
+              && conf.logBucketSetting.bucket
+              && conf.logBucketSetting.s3Path
+              && conf.aws
+              && conf.aws.credentials
+              && conf.aws.credentials.accessKeyId
+              && conf.aws.credentials.secretAccessKey
+              // && conf.aws.credentials.region
+          ) {
+              // var AWS      = require('aws-sdk');
+              // var s3Stream = require('s3-upload-stream')(new AWS.S3(conf.aws.credentials));
+              var awsS3 = require('aws-s3-promisified')({
+                  accessKeyId: conf.aws.credentials.accessKeyId,
+                  secretAccessKey: conf.aws.credentials.secretAccessKey,
+              });
+              var currentTime = new Date();
+              var key = `${conf.logBucketSetting.s3Path}/${(conf.logBucketSetting.s3FilePathFormat || '__filename__')
+                  .replace(/__ip__/, SERVER_PUBLIC_IP || '')
+                  .replace(/__year__/, currentTime.getFullYear())
+                  .replace(/__month__/, currentTime.getMonth() + 1)
+                  .replace(/__day__/, currentTime.getDate())
+                  .replace(/__filename__/, rotated_files)
+                  .replace(/__epoch__/, currentTime.getTime())
+                  }`;
+              awsS3.putFile(
+                  conf.logBucketSetting.bucket,
+                  key,
+                  path.resolve(dirName, rotated_files[i])
+              ).then(() => {
+                  console.log(`${rotated_files[i]} has been uploaded to ${key}`);
+                  return fs.unlink(path.resolve(dirName, rotated_files[i]), function (err) {
+                      if (err) return console.error(err);
+                      console.log('"' + rotated_files[i] + '" has been deleted');
+                  });
+              }).catch((error) => {
+                  console.error(JSON.stringify(error));
+              })
+              // var upload = s3Stream.upload({
+              //     "Bucket": conf.logBucketSetting.bucket,
+              //     "Key": (conf.logBucketSetting.s3Path + '/' + currentTime.getFullYear() + '/' + (currentTime.getMonth() + 1) + '/' + currentTime.getDate() + '/' + conf.serverIp + '/' + compressedFileName)
+              //     "Key": `${conf.logBucketSetting.s3Path}/${(conf.logBucketSetting.s3FilePathFormat || '__filename__')
+              //     .replace(/__ip__/, SERVER_PUBLIC_IP || '')
+              //     .replace(/__year__/, currentTime.getFullYear())
+              //     .replace(/__month__/, currentTime.getMonth() + 1)
+              //     .replace(/__day__/, currentTime.getDate())
+              //     .replace(/__filename__/, rotated_files)
+              //     .replace(/__epoch__/, currentTime.getTime())
+              // }`
+              // });
+              // readStream.pipe(upload);
+          }
       })(i);
     }
   });
