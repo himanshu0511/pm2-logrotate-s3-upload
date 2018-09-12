@@ -72,7 +72,7 @@ if(process.env.SERVER_PUBLIC_IP && typeof process.env.SERVER_PUBLIC_IP === 'stri
             });
         });
     };
-    get('http://169.254.169.254', '/latest/meta-data/public-ipv4',
+    get('169.254.169.254', '/latest/meta-data/public-ipv4',
         (data) => {
             if(data && typeof data === 'string') {
                 SERVER_PUBLIC_IP = data;
