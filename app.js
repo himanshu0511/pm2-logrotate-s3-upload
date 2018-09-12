@@ -6,6 +6,7 @@ var moment  	= require('moment-timezone');
 var scheduler	= require('node-schedule');
 var zlib      = require('zlib');
 var deepExtend = require('deep-extend');
+var http = require('http');
 var conf = pmx.initModule({
   widget : {
     type             : 'generic',
@@ -24,8 +25,7 @@ var conf = pmx.initModule({
     }
   }
 });
-console.log('environment variables', process.env);
-
+console.log('ENVIRONMENT: ', process.env);
 var PM2_ROOT_PATH = '';
 var Probe = pmx.probe();
 var SERVER_PUBLIC_IP;
@@ -38,7 +38,41 @@ else if (process.env.HOME || process.env.HOMEPATH)
   PM2_ROOT_PATH = path.resolve(process.env.HOMEDRIVE, process.env.HOME || process.env.HOMEPATH, '.pm2');
 
 if(process.env.SERVER_PUBLIC_IP && typeof process.env.SERVER_PUBLIC_IP === 'string'){
-    SERVER_PUBLIC_IP = process.env.SERVER_PUBLIC_IP
+    SERVER_PUBLIC_IP = process.env.SERVER_PUBLIC_IP;
+    console.log('environment variables', process.env);
+    console.log('ENV SERVER_PUBLIC_IP: ', SERVER_PUBLIC_IP);
+} else if(conf && conf.getAWSPublicIp){
+    let get = function (host, path, successCallback ,errorCallback) {
+        return http.get({
+            host,
+            path,
+        }, function(response) {
+            // Continuously update stream with data
+            var body = '';
+            response.on('data', function(d) {
+                body += d;
+            });
+            response.on('end', function() {
+
+                // Data reception is done, do whatever with it!
+                // var parsed = body
+                if(res && (res.statusCode === 200 ){
+                    successCallback(body);
+                } else {
+                    errorCallback(body);
+                }
+            });
+        });
+    };
+    get('http://169.254.169.254', '/latest/meta-data/public-ipv4',
+        (data) => {
+            if(data && typeof data === 'string') {
+                SERVER_PUBLIC_IP = data;
+                console.log('ENV SERVER_PUBLIC_IP: ', SERVER_PUBLIC_IP);
+            }
+        }, (error) => {
+            console.error('Get AWS IP CALL ERROR: ', error);
+        })
 }
 
 try {
