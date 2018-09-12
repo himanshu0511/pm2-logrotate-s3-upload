@@ -15,15 +15,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Joni SHKURTI",
+  "author": "Himanshu Pandey",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pm2-hive/pm2-logrotate.git"
+    "url": "git+https://github.com/himanshu0511/pm2-logrotate-s3-upload.git"
   },
   "bugs": {
-    "url": "https://github.com/pm2-hive/pm2-logrotate/issues"
+    "url": "https://github.com/himanshu0511/pm2-logrotate-s3-upload/issues"
   },
-  "homepage": "https://github.com/pm2-hive/pm2-logrotate",
+  "homepage": "https://github.com/himanshu0511/pm2-logrotate-s3-upload",
   "license": "MIT",
   "apps": [
     {
