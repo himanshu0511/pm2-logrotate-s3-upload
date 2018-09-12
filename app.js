@@ -37,6 +37,14 @@ else if (process.env.HOME && !process.env.HOMEPATH)
 else if (process.env.HOME || process.env.HOMEPATH)
   PM2_ROOT_PATH = path.resolve(process.env.HOMEDRIVE, process.env.HOME || process.env.HOMEPATH, '.pm2');
 
+try {
+    var customConfig = require(path.resolve(PM2_ROOT_PATH, 'pm2-logrotate-s3-upload-config.json'));
+    console.log("customConfig: ", JSON.stringify(customConfig));
+    console.log("befor conf: ", JSON.stringify(conf));
+    conf = deepExtend(conf, customConfig);
+    console.log("conf: ", JSON.stringify(conf));
+} catch(error) {}
+
 if(process.env.SERVER_PUBLIC_IP && typeof process.env.SERVER_PUBLIC_IP === 'string'){
     SERVER_PUBLIC_IP = process.env.SERVER_PUBLIC_IP;
     console.log('environment variables', process.env);
@@ -74,14 +82,6 @@ if(process.env.SERVER_PUBLIC_IP && typeof process.env.SERVER_PUBLIC_IP === 'stri
             console.error('Get AWS IP CALL ERROR: ', error);
         })
 }
-
-try {
-    var customConfig = require(path.resolve(PM2_ROOT_PATH, 'pm2-logrotate-s3-upload-config.json'));
-    console.log("customConfig: ", JSON.stringify(customConfig));
-    console.log("befor conf: ", JSON.stringify(conf));
-    conf = deepExtend(conf, customConfig);
-    console.log("conf: ", JSON.stringify(conf));
-} catch(error) {}
 
 var WORKER_INTERVAL = isNaN(parseInt(conf.workerInterval)) ? 30 * 1000 :
                             parseInt(conf.workerInterval) * 1000; // default: 30 secs
