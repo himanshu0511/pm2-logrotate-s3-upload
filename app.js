@@ -56,7 +56,7 @@ if(process.env.SERVER_PUBLIC_IP && typeof process.env.SERVER_PUBLIC_IP === 'stri
 
                 // Data reception is done, do whatever with it!
                 // var parsed = body
-                if(res && (res.statusCode === 200 ){
+                if(res && (res.statusCode === 200 )) {
                     successCallback(body);
                 } else {
                     errorCallback(body);
