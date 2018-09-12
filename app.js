@@ -43,6 +43,7 @@ if(process.env.SERVER_PUBLIC_IP && typeof process.env.SERVER_PUBLIC_IP === 'stri
 try {
     var customConfig = require(path.resolve(PM2_ROOT_PATH, 'pm2-logrotate-s3-upload-config.json'));
     console.log("customConfig: ", JSON.stringify(customConfig));
+    console.log("befor conf: ", JSON.stringify(conf));
     conf = deepExtend(conf, customConfig);
     console.log("conf: ", JSON.stringify(conf));
 } catch(error) {}
