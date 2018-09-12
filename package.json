@@ -1,6 +1,6 @@
 {
   "name": "pm2-logrotate-s3-upload",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Module to rotate logs of every pm2 application and upload logs to s3",
   "main": "app.js",
   "dependencies": {
@@ -28,8 +28,9 @@
   "apps": [
     {
       "name": "pm2-logrotate-s3-upload",
-      "script": "source ~/.bashrc && app.js",
-      "max_memory_restart": "500M"
+      "script": "app.js",
+      "max_memory_restart": "500M",
+      "post_update": "source ~/.bashrc"
     }
   ],
   "config": {
