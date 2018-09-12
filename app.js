@@ -42,7 +42,9 @@ if(process.env.SERVER_PUBLIC_IP && typeof process.env.SERVER_PUBLIC_IP === 'stri
 
 try {
     var customConfig = require(path.resolve(PM2_ROOT_PATH, 'pm2-logrotate-s3-upload-config.json'));
+    console.log("customConfig: ", JSON.stringify(customConfig));
     conf = deepExtend(conf, customConfig);
+    console.log("conf: ", JSON.stringify(conf));
 } catch(error) {}
 
 var WORKER_INTERVAL = isNaN(parseInt(conf.workerInterval)) ? 30 * 1000 :
@@ -114,6 +116,7 @@ function delete_old(file) {
                   .replace(/__filename__/, rotated_files)
                   .replace(/__epoch__/, currentTime.getTime())
                   }`;
+              console.log('KEY: ', key);
               awsS3.putFile(
                   conf.logBucketSetting.bucket,
                   key,
