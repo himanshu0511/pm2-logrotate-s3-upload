@@ -4,7 +4,7 @@
   "description": "Module to rotate logs of every pm2 application and upload logs to s3",
   "main": "app.js",
   "dependencies": {
-    "aws-s3-promisified": "^2.0.0",
+    "aws-s3-promisified": "^2.0.1",
     "deep-extend": "^0.6.0",
     "graceful-fs": "^4.1.11",
     "moment-timezone": "^0.5.11",
