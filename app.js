@@ -38,7 +38,7 @@ else if (process.env.HOME || process.env.HOMEPATH)
   PM2_ROOT_PATH = path.resolve(process.env.HOMEDRIVE, process.env.HOME || process.env.HOMEPATH, '.pm2');
 
 try {
-    var customConfig = require(path.resolve(PM2_ROOT_PATH, 'pm2-logrotate-s3-upload-config.json'));
+    var customConfig = require(path.resolve(PM2_ROOT_PATH, 'pm2-logrotate-s3-upload-config.js'));
     console.log("customConfig: ", JSON.stringify(customConfig));
     console.log("befor conf: ", JSON.stringify(conf));
     conf = deepExtend(conf, customConfig);
@@ -49,6 +49,9 @@ if(process.env.SERVER_PUBLIC_IP && typeof process.env.SERVER_PUBLIC_IP === 'stri
     SERVER_PUBLIC_IP = process.env.SERVER_PUBLIC_IP;
     console.log('environment variables', process.env);
     console.log('ENV SERVER_PUBLIC_IP: ', SERVER_PUBLIC_IP);
+} else if(conf && conf.serverIp) {
+    SERVER_PUBLIC_IP = conf.serverIp;
+    console.log('CONF SERVER_PUBLIC_IP: ', SERVER_PUBLIC_IP);
 } else if(conf && conf.getAWSPublicIp){
     let get = function (host, path, successCallback ,errorCallback) {
         return http.get({
@@ -76,7 +79,7 @@ if(process.env.SERVER_PUBLIC_IP && typeof process.env.SERVER_PUBLIC_IP === 'stri
         (data) => {
             if(data && typeof data === 'string') {
                 SERVER_PUBLIC_IP = data;
-                console.log('ENV SERVER_PUBLIC_IP: ', SERVER_PUBLIC_IP);
+                console.log('API SERVER_PUBLIC_IP: ', SERVER_PUBLIC_IP);
             }
         }, (error) => {
             console.error('Get AWS IP CALL ERROR: ', error);
@@ -149,7 +152,7 @@ function delete_old(file) {
                   .replace(/__year__/, currentTime.getFullYear())
                   .replace(/__month__/, currentTime.getMonth() + 1)
                   .replace(/__day__/, currentTime.getDate())
-                  .replace(/__filename__/, rotated_files)
+                  .replace(/__filename__/, rotated_files[i])
                   .replace(/__epoch__/, currentTime.getTime())
                   }`;
               console.log('KEY: ', key);
