@@ -89,7 +89,7 @@ function delete_old(file) {
     for (i = rotated_files.length - 1; i >= RETAIN; i--) {
       (function(i) {
           if(
-              conf.serverIp
+              SERVER_PUBLIC_IP
               && conf.logBucketSetting
               && conf.logBucketSetting.bucket
               && conf.logBucketSetting.s3Path
