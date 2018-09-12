@@ -24,6 +24,7 @@ var conf = pmx.initModule({
     }
   }
 });
+console.log('environment variables', process.env);
 
 var PM2_ROOT_PATH = '';
 var Probe = pmx.probe();

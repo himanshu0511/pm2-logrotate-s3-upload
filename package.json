@@ -1,6 +1,6 @@
 {
   "name": "pm2-logrotate-s3-upload",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Module to rotate logs of every pm2 application and upload logs to s3",
   "main": "app.js",
   "dependencies": {
