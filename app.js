@@ -25,7 +25,6 @@ var conf = pmx.initModule({
     }
   }
 });
-console.log('ENVIRONMENT: ', process.env);
 var PM2_ROOT_PATH = '';
 var Probe = pmx.probe();
 var SERVER_PUBLIC_IP;
@@ -39,15 +38,11 @@ else if (process.env.HOME || process.env.HOMEPATH)
 
 try {
     var customConfig = require(path.resolve(PM2_ROOT_PATH, 'pm2-logrotate-s3-upload-config.js'));
-    console.log("customConfig: ", JSON.stringify(customConfig));
-    console.log("befor conf: ", JSON.stringify(conf));
     conf = deepExtend(conf, customConfig);
-    console.log("conf: ", JSON.stringify(conf));
 } catch(error) {}
 
 if(process.env.SERVER_PUBLIC_IP && typeof process.env.SERVER_PUBLIC_IP === 'string'){
     SERVER_PUBLIC_IP = process.env.SERVER_PUBLIC_IP;
-    console.log('environment variables', process.env);
     console.log('ENV SERVER_PUBLIC_IP: ', SERVER_PUBLIC_IP);
 } else if(conf && conf.serverIp) {
     SERVER_PUBLIC_IP = conf.serverIp;
