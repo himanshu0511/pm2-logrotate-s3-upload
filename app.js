@@ -137,7 +137,7 @@ function delete_old(file) {
           ) {
               // var AWS      = require('aws-sdk');
               // var s3Stream = require('s3-upload-stream')(new AWS.S3(conf.aws.credentials));
-              if ( conf.aws.credentials.userole ){
+              if ( conf.userole ){
                 var awsS3 = require('aws-s3-promisified')()    
               } else {
                 var awsS3 = require('aws-s3-promisified')({
