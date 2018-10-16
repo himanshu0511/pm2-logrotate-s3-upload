@@ -42,6 +42,7 @@ module.exports = {
 ### Config Property Description
 #### S3 upload properties
 All of the following properties needs to defined for s3 upload to work.
+- `roleAttached` : If this is  true then your aws role will be used rather than aws credentials i.e. accessKeyId and secretAccessKey.
 - `aws.credentials.accessKeyId` (Defaults to `null`): This is access key id of your aws account.
 - `aws.credentials.secretAccessKey` (Defaults to `null`): This is secret key of your aws account.
 - `logBucketSetting.bucket` (Defaults to `null`): This is region of your s3 in aws.
