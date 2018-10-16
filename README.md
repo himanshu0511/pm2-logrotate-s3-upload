@@ -20,6 +20,7 @@ module.exports = {
                     "workerInterval": "30",
                     "rotateInterval": "0 0 * * *",
                     "rotateModule": true,
+                    "roleAttached": false,
                     "aws": {
                       "credentials": {
                         "accessKeyId": "<AWS_ACCESS_KEY_ID>",

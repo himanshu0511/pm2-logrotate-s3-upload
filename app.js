@@ -137,16 +137,15 @@ function delete_old(file) {
           ) {
               // var AWS      = require('aws-sdk');
               // var s3Stream = require('s3-upload-stream')(new AWS.S3(conf.aws.credentials));
-              if ( conf.userole ){
-                console.log("in if")
+              if ( conf.roleAttached ){
                 var awsS3 = require('aws-s3-promisified')()    
               } else {
-                console.log("in else")
-                var awsS3 = require('aws-s3-promisified')({
-                    accessKeyId: conf.aws.credentials.accessKeyId,
-                    secretAccessKey: conf.aws.credentials.secretAccessKey,
-                });
+                    var awsS3 = require('aws-s3-promisified')({
+                        accessKeyId: conf.aws.credentials.accessKeyId,
+                        secretAccessKey: conf.aws.credentials.secretAccessKey,
+                    });
               }
+              
               var currentTime = new Date();
               var key = `${conf.logBucketSetting.s3Path}/${(conf.logBucketSetting.s3FilePathFormat || '__filename__')
                   .replace(/__ip__/, SERVER_PUBLIC_IP || '')
